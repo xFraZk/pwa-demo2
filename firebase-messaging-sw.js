@@ -6,21 +6,22 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-compat.js');
 
-// Configuración de Firebase (LA MISMA que en tu index.html)
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
   authDomain: "hoho3d-pwa.firebaseapp.com",
   projectId: "hoho3d-pwa",
   storageBucket: "hoho3d-pwa.firebasestorage.app",
   messagingSenderId: "950865642151",
-  appId: "1:9508651d706e5f5182"
+  appId: "1:950865642151:web:a7749cf9651d706e5f5182"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Obtener Messaging
-const messaging = firebase.messaging();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
 // Manejador de mensajes en segundo plano
 messaging.onBackgroundMessage((payload) => {
