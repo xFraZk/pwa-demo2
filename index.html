@@ -49,7 +49,7 @@
 <body>
   <h1>🚀 Hola desde tu PWA</h1>
   
-  <button id="activar-notificaciones">🔔 Activar Notificaciones</button>
+  <button id="activar-notificaciones">🔔 Activar Notificaciones2</button>
 
   <div id="token-display" style="display: none;"></div>
 
@@ -58,15 +58,19 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging.js";
 
-    // 2. CONFIGURACIÓN DE FIREBASE
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
-      authDomain: "hoho3d-pwa.firebaseapp.com",
-      projectId: "hoho3d-pwa",
-      storageBucket: "hoho3d-pwa.firebasestorage.app",
-      messagingSenderId: "950865642151",
-      appId: "1:9508651d706e5f5182"
-    };
+    import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
+  authDomain: "hoho3d-pwa.firebaseapp.com",
+  projectId: "hoho3d-pwa",
+  storageBucket: "hoho3d-pwa.firebasestorage.app",
+  messagingSenderId: "950865642151",
+  appId: "1:950865642151:web:a7749cf9651d706e5f5182"
+};
 
     // 3. TU VAPID KEY
     const VAPID_KEY = "BB_2CNl7dALAgMi3vsV_pq5FSXJjHETWplXsWbqtRwBw-GskC1BBsNEZEGIqsUPJcqOfnRWWiV-ZFzREjr6OgY8";
@@ -119,3 +123,4 @@
   </script>
 </body>
 </html>
+
