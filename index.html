@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PWA Demo - Hoho3D</title>
+
+  <meta name="theme-color" content="#000000" />
+
+  <link rel="manifest" href="manifest.json" />
+
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-512.png" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #fafafa;
+      flex-direction: column;
+    }
+    h1 { font-size: 2rem; color: #111; }
+    button {
+      background: #000;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:active { transform: scale(0.98); }
+    #token-display {
+      font-size: 12px;
+      word-break: break-all;
+      max-width: 90vw;
+      background: #eee;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Hola desde tu PWA</h1>
+  
+  <button id="activar-notificaciones">🔔 Activar Notificaciones</button>
+
+  <div id="token-display" style="display: none;"></div>
+
+  <script type="module">
+    // 1. IMPORTAR TODO DESDE LAS URLS (SOLO UNA VEZ)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging.js";
+
+    // 2. CONFIGURACIÓN DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
+      authDomain: "hoho3d-pwa.firebaseapp.com",
+      projectId: "hoho3d-pwa",
+      storageBucket: "hoho3d-pwa.firebasestorage.app",
+      messagingSenderId: "950865642151",
+      appId: "1:9508651d706e5f5182"
+    };
+
+    // 3. TU VAPID KEY
+    const VAPID_KEY = "BB_2CNl7dALAgMi3vsV_pq5FSXJjHETWplXsWbqtRwBw-GskC1BBsNEZEGIqsUPJcqOfnRWWiV-ZFzREjr6OgY8";
+
+    // 4. INICIALIZAR FIREBASE Y MESSAGING
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+
+    // 5. FUNCIÓN PARA OBTENER EL TOKEN
+    async function obtenerYMostrarToken() {
+      console.log('Pidiendo permiso para notificaciones...');
+      try {
+        const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+
+        if (currentToken) {
+          console.log('🔑 Token de registro de FCM:', currentToken);
+          // Mostrar el token en la página para copiarlo fácil desde el celu
+          const tokenDiv = document.getElementById('token-display');
+          tokenDiv.style.display = 'block';
+          tokenDiv.innerHTML = `<b>Tu Token:</b> ${currentToken}`;
+
+        } else {
+          console.log('No se pudo obtener el token. Permiso no concedido.');
+        }
+      } catch (err) {
+        console.error('Ocurrió un error al obtener el token:', err);
+      }
+    }
+
+    // 6. MANEJAR MENSAJES MIENTRAS LA APP ESTÁ ABIERTA
+    onMessage(messaging, (payload) => {
+      console.log('📩 Mensaje recibido en primer plano:', payload);
+      alert(`Notificación: ${payload.notification.title}`);
+    });
+
+    // 7. REGISTRAR EL SERVICE WORKER
+    // Este archivo (firebase-messaging-sw.js) AHORA tendrá ambas lógicas.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then((registration) => console.log('✅ Service Worker registrado (unificado)'))
+        .catch(err => console.error('❌ Error al registrar SW:', err));
+    }
+    
+    // 8. CONECTAR EL BOTÓN A LA FUNCIÓN
+    const botonNotificaciones = document.getElementById('activar-notificaciones');
+    if (botonNotificaciones) {
+        botonNotificaciones.addEventListener('click', obtenerYMostrarToken);
+    }
+
+  </script>
+</body>
+</html>
