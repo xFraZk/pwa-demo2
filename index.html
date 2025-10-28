@@ -88,7 +88,7 @@
 <body>
   <h1>🚀 Hola desde tu PWA</h1>
   
-  <button id="install-pwa-button" style="display: none;">⬇️ Instalar App</button>
+  <button id="install-pwa-button" style="display: none;">⬇️ Instalasr App</button>
   
   <button id="activar-notificaciones">🔔 Activar Notificaciones</button>
 
@@ -137,7 +137,10 @@
     async function obtenerYMostrarToken() {
       console.log('Pidiendo permiso para notificaciones...');
       try {
-        const currentToken = await getToken(messaging, { vapID_KEY });
+        // ----- ¡AQUÍ ESTÁ LA CORRECCIÓN! -----
+        const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY }); 
+        // -------------------------------------
+
         if (currentToken) {
           console.log('🔑 Token de registro de FCM:', currentToken);
           const tokenDiv = document.getElementById('token-display');
@@ -236,4 +239,8 @@
   </script>
 </body>
 </html>
+  </script>
+</body>
+</html>
+
 
