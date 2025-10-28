@@ -7,9 +7,7 @@
   <title>PWA Demo - Hoho3D</title>
 
   <meta name="theme-color" content="#000000" />
-
   <link rel="manifest" href="manifest.json" />
-
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="icons/icon-512.png" />
 
@@ -33,6 +31,7 @@
       border-radius: 10px;
       font-size: 1rem;
       cursor: pointer;
+      margin-top: 10px;
     }
     button:active { transform: scale(0.98); }
     #token-display {
@@ -44,33 +43,88 @@
       border-radius: 5px;
       margin-top: 20px;
     }
+
+    /* --- NUEVOS ESTILOS PARA LOS MODALES --- */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      /* Ocultos por defecto */
+      display: none; 
+    }
+    .modal {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 10px;
+      text-align: center;
+      color: #111;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal h2 { margin-top: 0; }
+    /* (Opcional) Un spinner de carga */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* --- FIN DE NUEVOS ESTILOS --- */
   </style>
 </head>
 <body>
   <h1>🚀 Hola desde tu PWA</h1>
   
+  <button id="install-pwa-button" style="display: none;">⬇️ Instalar App</button>
+  
   <button id="activar-notificaciones">🔔 Activar Notificaciones</button>
 
   <div id="token-display" style="display: none;"></div>
 
+  <div id="install-loader-overlay" class="overlay">
+    <div class="modal">
+      <h2>Instalando...</h2>
+      <div class="loader"></div>
+      <p>Por favor, espera un momento.</p>
+    </div>
+  </div>
+
+  <div id="install-success-overlay" class="overlay">
+    <div class="modal">
+      <h2>¡Tienda Instalada!</h2>
+      <p>Ya podés encontrar la app en tu pantalla de inicio.</p>
+      <button id="close-success-modal">¡Entendido!</button>
+    </div>
+  </div>
+
+
   <script type="module">
-    // 1. IMPORTAR TODO DESDE LAS URLS (SOLO UNA VEZ)
+    // 1. IMPORTAR TODO...
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging.js";
 
- 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
-  authDomain: "hoho3d-pwa.firebaseapp.com",
-  projectId: "hoho3d-pwa",
-  storageBucket: "hoho3d-pwa.firebasestorage.app",
-  messagingSenderId: "950865642151",
-  appId: "1:950865642151:web:a7749cf9651d706e5f5182"
-};
+    // 2. CONFIGURACIÓN DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsXGq7D0jlXKUywesedniS0L0dV_8nWkY",
+      authDomain: "hoho3d-pwa.firebaseapp.com",
+      projectId: "hoho3d-pwa",
+      storageBucket: "hoho3d-pwa.firebasestorage.app",
+      messagingSenderId: "950865642151",
+      appId: "1:950865642151:web:a7749cf9651d706e5f5182"
+    };
 
     // 3. TU VAPID KEY
     const VAPID_KEY = "BB_2CNl7dALAgMi3vsV_pq5FSXJjHETWplXsWbqtRwBw-GskC1BBsNEZEGIqsUPJcqOfnRWWiV-ZFzREjr6OgY8";
@@ -79,19 +133,16 @@ const firebaseConfig = {
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
 
-    // 5. FUNCIÓN PARA OBTENER EL TOKEN
+    // 5. FUNCIÓN PARA OBTENER EL TOKEN (Sin cambios)
     async function obtenerYMostrarToken() {
       console.log('Pidiendo permiso para notificaciones...');
       try {
-        const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
-
+        const currentToken = await getToken(messaging, { vapID_KEY });
         if (currentToken) {
           console.log('🔑 Token de registro de FCM:', currentToken);
-          // Mostrar el token en la página para copiarlo fácil desde el celu
           const tokenDiv = document.getElementById('token-display');
           tokenDiv.style.display = 'block';
           tokenDiv.innerHTML = `<b>Tu Token:</b> ${currentToken}`;
-
         } else {
           console.log('No se pudo obtener el token. Permiso no concedido.');
         }
@@ -100,35 +151,86 @@ const firebaseConfig = {
       }
     }
 
-    // 6. MANEJAR MENSAJES MIENTRAS LA APP ESTÁ ABIERTA
+    // 6. MANEJAR MENSAJES EN PRIMER PLANO (Sin cambios)
     onMessage(messaging, (payload) => {
       console.log('📩 Mensaje recibido en primer plano:', payload);
       alert(`Notificación: ${payload.notification.title}`);
     });
 
-    // 7. REGISTRAR EL SERVICE WORKER
-    // Este archivo (firebase-messaging-sw.js) AHORA tendrá ambas lógicas.
+    // 7. REGISTRAR EL SERVICE WORKER (Sin cambios)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then((registration) => console.log('✅ Service Worker registrado (unificado)'))
         .catch(err => console.error('❌ Error al registrar SW:', err));
     }
     
-    // 8. CONECTAR EL BOTÓN A LA FUNCIÓN
-    // (Lo dejamos por si el usuario no instala la app o rechaza el permiso inicial)
+    // 8. CONECTAR EL BOTÓN DE NOTIFICACIONES (Sin cambios)
     const botonNotificaciones = document.getElementById('activar-notificaciones');
     if (botonNotificaciones) {
         botonNotificaciones.addEventListener('click', obtenerYMostrarToken);
     }
 
     // -----------------------------------------------------------------
-    // 9. ¡NUEVO! PEDIR PERMISO AUTOMÁTICAMENTE AL INSTALAR LA APP
+    // 9. ¡NUEVA LÓGICA DE INSTALACIÓN DE PWA!
     // -----------------------------------------------------------------
+    
+    let deferredPrompt; // Variable para guardar el evento
+    const installButton = document.getElementById('install-pwa-button');
+    const installLoader = document.getElementById('install-loader-overlay');
+    const successModal = document.getElementById('install-success-overlay');
+    const closeSuccessButton = document.getElementById('close-success-modal');
+
+    // A. CAPTURAR EL EVENTO DE "LISTO PARA INSTALAR"
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevenir que el navegador muestre su mini-banner
+      e.preventDefault();
+      // Guardar el evento para usarlo después
+      deferredPrompt = e;
+      // Mostrar NUESTRO botón de instalar
+      console.log('La app está lista para ser instalada.');
+      installButton.style.display = 'block';
+    });
+
+    // B. LÓGICA DEL BOTÓN DE INSTALAR
+    installButton.addEventListener('click', async () => {
+      // Ocultar el botón (ya no lo necesitamos)
+      installButton.style.display = 'none';
+      
+      // Mostrar el prompt de instalación nativo del navegador
+      deferredPrompt.prompt();
+      
+      // Esperar a que el usuario elija (Aceptar o Cancelar)
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        console.log('El usuario aceptó la instalación.');
+        // ¡MOSTRAR EL MENSAJE DE "INSTALANDO..."!
+        installLoader.style.display = 'flex';
+      } else {
+        console.log('El usuario canceló la instalación.');
+        // Volver a mostrar el botón por si cambia de opinión
+        installButton.style.display = 'block';
+      }
+      deferredPrompt = null; // El evento solo se usa una vez
+    });
+
+    // C. LÓGICA DE "INSTALACIÓN COMPLETA"
     window.addEventListener('appinstalled', (event) => {
       console.log('✅ PWA instalada correctamente.');
-      // En este punto, el usuario confía en la app.
-      // Llamamos a la función que pide el permiso.
+      
+      // Ocultar el loader de "Instalando..."
+      installLoader.style.display = 'none';
+      
+      // ¡MOSTRAR EL MENSAJE DE "INSTALACIÓN COMPLETA"!
+      successModal.style.display = 'flex';
+      
+      // Pedir permiso de notificaciones (como querías)
       obtenerYMostrarToken();
+    });
+
+    // D. LÓGICA PARA CERRAR EL MODAL DE ÉXITO
+    closeSuccessButton.addEventListener('click', () => {
+      successModal.style.display = 'none';
     });
 
   </script>
