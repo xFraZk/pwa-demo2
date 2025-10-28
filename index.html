@@ -49,7 +49,7 @@
 <body>
   <h1>🚀 Hola desde tu PWA</h1>
   
-  <button id="activar-notificaciones">🔔 Activar Notificaciones2</button>
+  <button id="activar-notificaciones">🔔 Activar Notificaciones</button>
 
   <div id="token-display" style="display: none;"></div>
 
@@ -58,7 +58,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging.js";
 
-
+ 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -115,14 +115,23 @@ const firebaseConfig = {
     }
     
     // 8. CONECTAR EL BOTÓN A LA FUNCIÓN
+    // (Lo dejamos por si el usuario no instala la app o rechaza el permiso inicial)
     const botonNotificaciones = document.getElementById('activar-notificaciones');
     if (botonNotificaciones) {
         botonNotificaciones.addEventListener('click', obtenerYMostrarToken);
     }
 
+    // -----------------------------------------------------------------
+    // 9. ¡NUEVO! PEDIR PERMISO AUTOMÁTICAMENTE AL INSTALAR LA APP
+    // -----------------------------------------------------------------
+    window.addEventListener('appinstalled', (event) => {
+      console.log('✅ PWA instalada correctamente.');
+      // En este punto, el usuario confía en la app.
+      // Llamamos a la función que pide el permiso.
+      obtenerYMostrarToken();
+    });
+
   </script>
 </body>
 </html>
-
-
 
